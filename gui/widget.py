@@ -26,14 +26,7 @@ class StrategyGUI:
         self.strategy_dropdown = ttk.Combobox(
             main_frame, textvariable=self.strategy_var, state="readonly", width=25
         )
-        self.strategy_dropdown["values"] = (
-            "Tit for Tat",
-            "Pavlov",
-            "Grim Trigger",
-            "Tit for Two Tats",
-            "Suspicious Tit for Tat",
-            "Custom Strategy",
-        )
+        self.strategy_dropdown["values"] = ("Tit for Tat", "Pavlov", "Custom Strategy")
         self.strategy_dropdown.current(0)
         self.strategy_dropdown.grid(row=1, column=1, pady=5, padx=(10, 0))
         self.strategy_dropdown.bind("<<ComboboxSelected>>", self.on_strategy_change)
@@ -112,10 +105,7 @@ class StrategyGUI:
         else:
             strategy_map = {
                 "Tit for Tat": axl.TitForTat(),
-                "Pavlov": axl.Pavlov(),
-                "Grim Trigger": axl.GrimTrigger(),
-                "Tit for Two Tats": axl.TitFor2Tats(),
-                "Suspicious Tit for Tat": axl.SuspiciousTitForTat(),
+                "Pavlov": axl.WinStayLoseShift(),
             }
             strategy = strategy_map.get(strategy_name)
             if not strategy:
