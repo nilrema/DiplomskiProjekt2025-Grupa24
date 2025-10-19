@@ -1,10 +1,10 @@
-import axelrod as axl 
-import matplotlib.pyplot as plt
-
 # needed for createPlayer function
 import importlib.util
 import os
 import sys
+
+import axelrod as axl
+
 
 class CustomPlayer(axl.Player):
     def __init__(self, name, decisionFunction):
@@ -18,25 +18,23 @@ class CustomPlayer(axl.Player):
     def __str__(self):
         return self.name
 
+
 def createPlayer(name, filePath):
-    fileName = list(filePath.split('/'))[-1]
+    fileName = list(filePath.split("/"))[-1]
     fullPath = os.path.abspath(filePath)
     moduleName = os.path.splitext(fileName)[0]
     spec = importlib.util.spec_from_file_location(moduleName, fullPath)
-    
+
     if spec is None:
         raise FileNotFoundError(f"Could not find the file {moduleName}")
 
     module = importlib.util.module_from_spec(spec)
-    
+
     sys.modules[moduleName] = module
     spec.loader.exec_module(module)
     strategy = module.strategy
     strategy.__name__ = name
-    return CustomPlayer(name, strategy) 
-
-
-
+    return CustomPlayer(name, strategy)
 
 
 # testing
@@ -49,7 +47,3 @@ def createPlayer(name, filePath):
 # plot = axl.Plot(results)
 # p = plot.boxplot()
 # plt.show()
-
-
-
-
