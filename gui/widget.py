@@ -112,7 +112,7 @@ class StrategyGUI:
                 messagebox.showerror("Error", "Unknown strategy.")
                 return
 
-        opponent = axl.Cooperator()
+        opponent = axl.WinStayLoseShift()
         match = axl.Match([strategy, opponent], turns=turns)
         results = match.play()
         scores = match.final_score()

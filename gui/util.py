@@ -38,9 +38,15 @@ def createPlayer(name, filePath):
 
 
 # testing
-# templatePlayer = createPlayer("template", "../custom-strategies/template.py")
-# players = [axl.Cooperator(), axl.Alternator(), axl.Defector(), axl.TitForTat(), templatePlayer]
-#
+# templatePlayer = createPlayer("template", "./custom-strategies/merlin.py")
+# players = [
+#     axl.Cooperator(),
+#     axl.Alternator(),
+#     axl.Defector(),
+#     axl.TitForTat(),
+#     templatePlayer,
+# ]
+
 # tournament = axl.Tournament(players, turns=100, repetitions=3)
 # results = tournament.play()
 # print(results.ranked_names)
