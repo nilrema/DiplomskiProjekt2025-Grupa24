@@ -48,7 +48,6 @@ class StrategyGUI:
         self.strategy_dropdown["values"] = standard_strategies + tuple(custom_strategies)
         self.strategy_dropdown.current(0)
         self.strategy_dropdown.pack()
-        # self.strategy_dropdown.bind("<<ComboboxSelected>>", self.on_strategy_change)
         self.selected_frame = ttk.Frame(strategies_frame)
         self.selected_frame.pack(fill="both", expand=True)
         self.custom_label = ttk.Label(main_frame, text="Custom Strategy File:")
@@ -153,13 +152,16 @@ class StrategyGUI:
         visuals_button.pack()
         
     def plot(self):
-        # Create the main plotting object
         plot = axl.Plot(self.results)
 
         box = plot.boxplot()
+        ax = box.gca()
+        ax.set_title("Scores")
         box.show()
 
         win = plot.winplot()
+        ax = win.gca()
+        ax.set_title("Win distributions")
         win.show()
 
         payoff = plot.payoff()
