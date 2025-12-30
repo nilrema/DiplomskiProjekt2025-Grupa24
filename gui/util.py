@@ -2,6 +2,7 @@
 import importlib.util
 import os
 import sys
+import matplotlib.pyplot as plt
 
 import axelrod as axl
 
@@ -37,8 +38,8 @@ def createPlayer(name, filePath):
     return CustomPlayer(name, strategy)
 
 
-# testing
-# templatePlayer = createPlayer("template", "./custom-strategies/merlin.py")
+# # testing
+# templatePlayer = createPlayer("template", "../custom-strategies/rados.py")
 # players = [
 #     axl.Cooperator(),
 #     axl.Alternator(),
@@ -46,7 +47,7 @@ def createPlayer(name, filePath):
 #     axl.TitForTat(),
 #     templatePlayer,
 # ]
-
+#
 # tournament = axl.Tournament(players, turns=100, repetitions=3)
 # results = tournament.play()
 # print(results.ranked_names)
