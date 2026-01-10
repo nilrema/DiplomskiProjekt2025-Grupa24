@@ -44,8 +44,10 @@ class StrategyGUI:
 
         folder = Path("../custom-strategies/")
         custom_strategies = [p.name for p in folder.glob("*.py")]
-        standard_strategies = ("Tit for Tat", "Pavlov", "Always Cooperate", "Always Defect", "Random")
-        self.strategy_dropdown["values"] = standard_strategies + tuple(custom_strategies)
+        standard_strategies = ("Tit for Tat", "Pavlov",
+                               "Always Cooperate", "Always Defect", "Random")
+        self.strategy_dropdown["values"] = standard_strategies + \
+            tuple(custom_strategies)
         self.strategy_dropdown.current(0)
         self.strategy_dropdown.pack()
         self.selected_frame = ttk.Frame(strategies_frame)
@@ -55,15 +57,16 @@ class StrategyGUI:
         self.custom_button = ttk.Button(
             main_frame, text="Browse", command=self.browse_file, state="disabled"
         )
-        
+
         add_button = ttk.Button(
             main_frame,
             text="Add strategy",
             command=self.add_strategy,
             padding=10)
-        add_button.pack(padx=10, pady=10) 
+        add_button.pack(padx=10, pady=10)
         ##
-        iterations_label = ttk.Label(confirm_frame, text="Number of Iterations:")
+        iterations_label = ttk.Label(
+            confirm_frame, text="Number of Iterations:")
         iterations_label.pack()
         self.iterations_var = tk.StringVar(value="100")
         iterations_entry = ttk.Entry(
@@ -85,17 +88,23 @@ class StrategyGUI:
             command=self.reset_fields,
             padding=10)
         reset_button.grid(row=0, column=1, sticky="news", padx=5, pady=5)
-        
-        ##ovo je ružno, ali ajde 
+
+        # ovo je ružno, ali ajde
         self.need_to_remember_this_frame = confirm_frame
 
+        self.visuals_button = ttk.Button(
+            self.need_to_remember_this_frame,
+            text="Visualize results",
+            command=self.plot,
+            padding=10)
+        self.visuals_button.pack_forget()
 
     def browse_file(self):
-        file_path = filedialog.askopenfilename(filetypes=[("Python files", "*.py")])
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Python files", "*.py")])
         if file_path:
             self.custom_entry.delete(0, tk.END)
             self.custom_entry.insert(0, file_path)
-
 
     def add_strategy(self):
         value = self.strategy_var.get()
@@ -104,29 +113,28 @@ class StrategyGUI:
             item_frame = ttk.Frame(self.selected_frame)
             item_frame.pack(fill="x", pady=2)
             lbl = ttk.Label(item_frame, text=value)
-            lbl.pack(side="left", padx=(0,10))
+            lbl.pack(side="left", padx=(0, 10))
 
             btn = ttk.Button(item_frame,
                              text="x",
                              width=2,
-                            command=lambda f=item_frame, v=value: self.remove_strategy(f, v))
+                             command=lambda f=item_frame, v=value: self.remove_strategy(f, v))
             btn.pack(side="right")
-
 
     def remove_strategy(self, frame, value):
         frame.destroy()
         if value in self.selected_strategies:
             self.selected_strategies.remove(value)
 
-
     def run_simulation(self):
         players = []
         for strategy_name in self.selected_strategies:
             if strategy_name.endswith(".py"):
                 print(strategy_name)
-                player = createPlayer(strategy_name[:-3], "../custom-strategies/" + strategy_name)
+                player = createPlayer(
+                    strategy_name[:-3], "../custom-strategies/" + strategy_name)
                 players.append(player)
-            else: 
+            else:
                 if strategy_name == "Tit for Tat":
                     players.append(axl.TitForTat())
                 elif strategy_name == "Pavlov":
@@ -139,18 +147,16 @@ class StrategyGUI:
                     players.append(axl.Random())
 
         tournament = axl.Tournament(
-                                    players,
-                                    turns=int(self.iterations_var.get()),
-                                    repetitions=3)
+            players,
+            turns=int(self.iterations_var.get()),
+            repetitions=3)
         self.results = tournament.play()
         print(self.results.ranked_names)
-        visuals_button = ttk.Button(
-            self.need_to_remember_this_frame,
-            text="Visualize results",
-            command=self.plot,
-            padding=10)
-        visuals_button.pack()
-        
+        self.visuals_button.pack(pady=10)
+
+        self.root.update_idletasks()
+        self.root.geometry("")
+
     def plot(self):
         plot = axl.Plot(self.results)
 
@@ -174,6 +180,7 @@ class StrategyGUI:
         self.iterations_var.set("100")
         self.custom_entry.delete(0, tk.END)
         self.selected_strategies.clear()
+        self.visuals_button.pack_forget()
         for child in self.selected_frame.winfo_children():
             child.destroy()
 
