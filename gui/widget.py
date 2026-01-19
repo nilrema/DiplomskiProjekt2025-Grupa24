@@ -4,13 +4,14 @@ from tkinter import filedialog, messagebox, ttk
 import axelrod as axl
 from util import createPlayer
 from pathlib import Path
+import matplotlib.pyplot as plt
 
 
 class StrategyGUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Strategy selector")
-        self.root.geometry("600x300")
+        # self.root.geometry("600x300")
         self.root.resizable(False, False)
         self.root.grid_columnconfigure(0, weight=2)
         self.root.grid_columnconfigure(1, weight=2)
@@ -20,7 +21,7 @@ class StrategyGUI:
         strategies_frame = ttk.Frame(self.root, padding="10")
         confirm_frame = ttk.Frame(self.root, padding="10")
         main_frame.grid(row=0, column=0, sticky="news")
-        strategies_frame.grid(row=0, column=1, sticky="news")
+        strategies_frame.grid(row=0, rowspan=2, column=1, sticky="news")
         confirm_frame.grid(row=1, column=0, sticky="news")
 
         title_label = ttk.Label(
@@ -50,8 +51,30 @@ class StrategyGUI:
             tuple(custom_strategies)
         self.strategy_dropdown.current(0)
         self.strategy_dropdown.pack()
-        self.selected_frame = ttk.Frame(strategies_frame)
-        self.selected_frame.pack(fill="both", expand=True)
+        canvas = tk.Canvas(strategies_frame, bd=1,
+                           relief="solid")
+        scrollbar = ttk.Scrollbar(
+            strategies_frame, orient="vertical", command=canvas.yview)
+        self.selected_frame = tk.Frame(canvas)
+
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        canvas_frame = canvas.create_window(
+            (0, 0), window=self.selected_frame, anchor="n")
+
+        def on_canvas_configure(event):
+            canvas.coords(canvas_frame, event.width // 2, 0)
+            canvas.itemconfig(canvas_frame, width=event.width - 10)
+
+        canvas.bind("<Configure>", on_canvas_configure)
+
+        def on_frame_configure(event):
+            canvas.configure(scrollregion=canvas.bbox("all"))
+
+        self.selected_frame.bind("<Configure>", on_frame_configure)
         self.custom_label = ttk.Label(main_frame, text="Custom Strategy File:")
         self.custom_entry = ttk.Entry(main_frame, width=27, state="disabled")
         self.custom_button = ttk.Button(
@@ -110,8 +133,11 @@ class StrategyGUI:
         value = self.strategy_var.get()
         if value not in self.selected_strategies:
             self.selected_strategies.append(value)
-            item_frame = ttk.Frame(self.selected_frame)
-            item_frame.pack(fill="x", pady=2)
+
+            item_frame = ttk.Frame(self.selected_frame, width=150, height=30)
+            item_frame.pack(pady=2, anchor='center')
+            item_frame.pack_propagate(False)
+
             lbl = ttk.Label(item_frame, text=value)
             lbl.pack(side="left", padx=(0, 10))
 
@@ -163,17 +189,53 @@ class StrategyGUI:
         box = plot.boxplot()
         ax = box.gca()
         ax.set_title("Scores")
+        box.subplots_adjust(left=0.1, right=0.9, top=0.9)
         box.show()
 
         win = plot.winplot()
         ax = win.gca()
         ax.set_title("Win distributions")
+        win.subplots_adjust(left=0.1, right=0.9, top=0.9)
         win.show()
 
         payoff = plot.payoff()
+        ax = payoff.gca()
+        ax.set_title("Payoff matrix")
+        payoff.subplots_adjust(left=0.25, right=0.75, top=0.65, bottom=0.15)
         payoff.show()
 
+        self.plot_ranking(self.results)
+
+        plt.tight_layout()
+
         return plot
+
+    def plot_ranking(self, results):
+
+        print("ranked names", results.ranked_names)
+
+        ranked_names = results.ranked_names
+        player_names = results.players
+
+        total_scores = [sum(results.scores[player_names.index(name)])
+                        for name in ranked_names]
+
+        print("total scores:", total_scores)
+
+        ranking = sorted(zip(ranked_names, total_scores),
+                         key=lambda x: x[1], reverse=True)
+        names_sorted = [x[0] for x in ranking][::-1]
+        scores_sorted = [x[1] for x in ranking][::-1]
+
+        plt.figure(figsize=(8, 4))
+        plt.barh(names_sorted, scores_sorted, color='skyblue')
+        plt.xlabel("Total Score")
+        plt.title("Tournament Ranking")
+        plt.subplots_adjust(left=0.1, right=0.9, top=0.9, bottom=0.1)
+        plt.tight_layout()
+        plt.show()
+
+        return
 
     def reset_fields(self):
         self.strategy_dropdown.current(0)
